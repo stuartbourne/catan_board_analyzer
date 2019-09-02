@@ -1,0 +1,3 @@
+/Users/stuartbourne/Documents/personal_development/cpp_work/opencv/catan_board_detection/build/CMakeFiles/rebuild_cache.dir
+/Users/stuartbourne/Documents/personal_development/cpp_work/opencv/catan_board_detection/build/CMakeFiles/edit_cache.dir
+/Users/stuartbourne/Documents/personal_development/cpp_work/opencv/catan_board_detection/build/CMakeFiles/CatanBoardSetup.dir
