@@ -4,8 +4,9 @@
 #include <opencv2/imgcodecs.hpp>
 
 void showWindows(std::initializer_list<cv::Mat> windows);
+void getCroppedBoard(cv::Mat& input_img, cv::Mat& output_img);
 
-const int MEDIAN_BLUR_SIZE = 7;
+const int MEDIAN_BLUR_SIZE = 3;
 
 int main(int argc, char** argv){
     cv::Mat rgb_board;
@@ -15,10 +16,17 @@ int main(int argc, char** argv){
         std::cout << "Cannot read the input source image." << std::endl;
         return -1;
     }
-    
+    cv::Mat cropped_board;
+    getCroppedBoard(rgb_board, cropped_board);
+
+    showWindows({rgb_board, cropped_board});
+    return 0;
+}
+
+void getCroppedBoard(cv::Mat& input_img, cv::Mat& output_img){
     //we will need to convert to HSV coordinates to allow for easier color detection
     cv::Mat hsv_board;
-    cv::cvtColor(rgb_board, hsv_board, cv::COLOR_BGR2HSV);
+    cv::cvtColor(input_img, hsv_board, cv::COLOR_BGR2HSV);
     //blur to allow for less contours
     cv::medianBlur(hsv_board, hsv_board, MEDIAN_BLUR_SIZE);
     cv::Mat blue_board;
@@ -38,13 +46,9 @@ int main(int argc, char** argv){
         }
     }
     cv::drawContours(cont_mask, contours, maxContIdx, cv::Scalar(180, 180, 180), cv::FILLED);
-    
-    cv::Mat cropped(rgb_board.rows, rgb_board.cols, CV_8UC3);
-    cropped.setTo(cv::Scalar(0,0,0));
-    rgb_board.copyTo(cropped, cont_mask);
-
-    showWindows({rgb_board, hsv_board, blue_board, cont_mask, cropped});
-    return 0;
+    output_img = input_img.clone();
+    output_img.setTo(cv::Scalar(0,0,0));
+    input_img.copyTo(output_img, cont_mask);
 }
 
 void showWindows(std::initializer_list<cv::Mat> windows){
