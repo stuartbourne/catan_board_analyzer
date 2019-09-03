@@ -18,8 +18,31 @@ int main(int argc, char** argv){
     }
     cv::Mat cropped_board;
     getCroppedBoard(rgb_board, cropped_board);
+    //Now lets extract the tokens from the board and create CatanToken objects.
+    cv::Mat hsv_board;
+    cv::cvtColor(cropped_board, hsv_board, cv::COLOR_BGR2HSV);
+    cv::Mat yellow_board;
+    cv::medianBlur(hsv_board, hsv_board, 11);
+    cv::inRange(hsv_board, cv::Scalar(10, 30, 150), cv::Scalar(30, 100, 255), yellow_board);
+    std::vector<cv::Vec3f> circles;
+    cv::HoughCircles(   yellow_board, circles, cv::HOUGH_GRADIENT, 1,
+                        20,
+                        150, 10, 4, 20);
+    
+    for (std::size_t i = 0; i < circles.size(); ++i){
+        cv::Vec3i c = circles[i];
+        cv::Point center = cv::Point(c[0], c[1]);
+        circle( cropped_board, center, 1, 
+                cv::Scalar(0, 100, 100), 3, cv::LINE_AA);
+        int radius = c[2];
+        std::cout << "Radius: "<< radius << std::endl;
+        circle( cropped_board, center, radius, 
+                cv::Scalar(255, 0, 255), 3, cv::LINE_AA);
+    }
 
-    showWindows({rgb_board, cropped_board});
+    //Once tokens are extracted, we will extract the tiles and assign CatanTokens to be their members.
+
+    showWindows({rgb_board, cropped_board, hsv_board, yellow_board});
     return 0;
 }
 
@@ -58,6 +81,7 @@ void showWindows(std::initializer_list<cv::Mat> windows){
         const int windowWidth = cv::getWindowImageRect(std::to_string(i)).size().width;
         const int windowHeight = cv::getWindowImageRect(std::to_string(i)).size().height;
         cv::moveWindow(std::to_string(i), windowWidth * (i % 3), windowHeight * (j % 3));
+        // cv::setMouseCallback(std::to_string(i), onMouse, static_cast<void*>(window));
         ++i;
         if (i % 3 == 0)
             ++j;
