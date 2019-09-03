@@ -5,6 +5,7 @@
 
 void showWindows(std::initializer_list<cv::Mat> windows);
 void getCroppedBoard(cv::Mat& input_img, cv::Mat& output_img);
+void getTokenImgs(cv::Mat& cropped_board, std::vector<cv::Vec3f>& circles);
 
 const int MEDIAN_BLUR_SIZE = 3;
 
@@ -19,16 +20,8 @@ int main(int argc, char** argv){
     cv::Mat cropped_board;
     getCroppedBoard(rgb_board, cropped_board);
     //Now lets extract the tokens from the board and create CatanToken objects.
-    cv::Mat hsv_board;
-    cv::cvtColor(cropped_board, hsv_board, cv::COLOR_BGR2HSV);
-    cv::Mat yellow_board;
-    cv::medianBlur(hsv_board, hsv_board, 11);
-    cv::inRange(hsv_board, cv::Scalar(10, 30, 150), 
-                cv::Scalar(30, 100, 255), yellow_board);
     std::vector<cv::Vec3f> circles;
-    cv::HoughCircles(   yellow_board, circles, cv::HOUGH_GRADIENT, 1,
-                        20,
-                        150, 10, 4, 20);
+    getTokenImgs(cropped_board, circles);
     
     for (std::size_t i = 0; i < circles.size(); ++i){
         cv::Vec3i c = circles[i];
@@ -43,8 +36,20 @@ int main(int argc, char** argv){
 
     //Once tokens are extracted, we will extract the tiles and assign CatanTokens to be their members.
 
-    showWindows({rgb_board, cropped_board, hsv_board, yellow_board});
+    showWindows({rgb_board, cropped_board});
     return 0;
+}
+
+void getTokenImgs(cv::Mat& cropped_board, std::vector<cv::Vec3f>& circles){
+    cv::Mat hsv_board;
+    cv::cvtColor(cropped_board, hsv_board, cv::COLOR_BGR2HSV);
+    cv::Mat yellow_board;
+    cv::medianBlur(hsv_board, hsv_board, 11);
+    cv::inRange(hsv_board, cv::Scalar(10, 30, 150), 
+                cv::Scalar(30, 100, 255), yellow_board);
+    cv::HoughCircles(   yellow_board, circles, cv::HOUGH_GRADIENT, 1,
+                        20,
+                        150, 10, 4, 20);
 }
 
 void getCroppedBoard(cv::Mat& input_img, cv::Mat& output_img){
