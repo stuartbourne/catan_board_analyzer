@@ -23,7 +23,8 @@ int main(int argc, char** argv){
     cv::cvtColor(cropped_board, hsv_board, cv::COLOR_BGR2HSV);
     cv::Mat yellow_board;
     cv::medianBlur(hsv_board, hsv_board, 11);
-    cv::inRange(hsv_board, cv::Scalar(10, 30, 150), cv::Scalar(30, 100, 255), yellow_board);
+    cv::inRange(hsv_board, cv::Scalar(10, 30, 150), 
+                cv::Scalar(30, 100, 255), yellow_board);
     std::vector<cv::Vec3f> circles;
     cv::HoughCircles(   yellow_board, circles, cv::HOUGH_GRADIENT, 1,
                         20,
